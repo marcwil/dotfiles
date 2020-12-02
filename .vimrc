@@ -17,7 +17,6 @@ set ai " autoindent
 set ts=4
 set nu
 set background=dark
-colo delek
 set so=3
 nnoremap DD ddk
 filetype plugin indent on
@@ -67,6 +66,24 @@ set smartcase
 " keine wörter umbrechen
 set linebreak
 
+"""""""""""""""""""""
+"      Plugins      "
+"""""""""""""""""""""
+call plug#begin('~/.vim/plugged')
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'scrooloose/nerdtree', { 'on':  'NERDTreeToggle' }
+Plug 'vim-scripts/haskell.vim'
+Plug 'vim-scripts/indenthaskell.vim'
+Plug 'preservim/tagbar', { 'on': 'TagbarToggle' }
+Plug 'vim-airline/vim-airline'
+Plug 'nathangrigg/vim-beancount'
+Plug 'vimwiki/vimwiki'
+Plug 'dense-analysis/ale'
+if !has('nvim')
+    Plug 'markonm/traces.vim'
+end
+call plug#end()
+
 " CtrlP
 let g:ctrlp_cmd = 'CtrlPMixed'
 nnoremap <Leader>p :CtrlPBuffer<cr>
@@ -113,8 +130,8 @@ endif
 
 " Load all plugins now.
 " Plugins need to be added to runtimepath before helptags can be generated.
-packloadall
+"packloadall
 " Load all of the helptags now, after plugins have been loaded.
 " All messages and errors will be ignored.
-silent! helptags ALL
+"silent! helptags ALL
 
