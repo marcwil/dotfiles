@@ -1,0 +1,7 @@
+[user]
+	email = mail@marcuswilhelm.de
+	name = Marcus Wilhelm
+[diff]
+	submodule = log
+[credential]
+	helper = store
