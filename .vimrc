@@ -79,10 +79,16 @@ Plug 'vim-airline/vim-airline'
 Plug 'nathangrigg/vim-beancount'
 Plug 'vimwiki/vimwiki'
 Plug 'dense-analysis/ale'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-repeat'
 if !has('nvim')
     Plug 'markonm/traces.vim'
 end
 call plug#end()
+
+"""""""""""""""""""""
+"   Plugin Config   "
+"""""""""""""""""""""
 
 " CtrlP
 let g:ctrlp_cmd = 'CtrlPMixed'
@@ -95,43 +101,31 @@ nnoremap <Leader>e :NERDTreeToggle<cr>
 nnoremap <Leader>o :TagbarToggle<cr>
 let g:tagbar_sort = 0
 
+" Ale config
+let g:ale_completion_enabled = 1 " enable ale completion
+set omnifunc=ale#completion#OmniFunc
+" autocomplete workaround
+set completeopt+=noinsert
+
+" AleCommands
+nnoremap <Leader>h :ALEHover<cr>
+nnoremap <Leader>q :ALEDocumentation<cr>
+nnoremap <Leader>Q :ALEDetail<cr>
+nnoremap <Leader>d :ALEGoToDefinition<cr>
+nnoremap <Leader>D :ALEGoToDefinition<cr>
+nnoremap <Leader>dt :ALEGoToDefinition -tab<cr>
+nnoremap <Leader>ds :ALEGoToDefinition -split<cr>
+nnoremap <Leader>dv :ALEGoToDefinition -vsplit<cr>
+nnoremap <Leader>R :ALERename<cr>
+nnoremap <Leader>r :ALEFindReferences<cr>
+nnoremap <Leader>f :ALEFix<cr>
+nnoremap <Leader>F :ALEFixSuggest<cr>
+nnoremap <Leader>l :ALELint<cr>
+nnoremap <Leader>n :ALENext<cr>
+nnoremap <Leader>N :ALEPrevious<cr>
+
 if has('nvim')
     " like traces.vim (%s live preview)
     set inccommand=split
     set mouse=a
-
-    " enable ale completion
-    let g:ale_completion_enabled = 1
-"    set omnifunc=ale#completion#OmniFunc
-    " autocomplete workaround
-    set completeopt+=noinsert
-    " AleCommands
-    nnoremap <Leader>h :ALEHover<cr>
-    nnoremap <Leader>q :ALEDocumentation<cr>
-    nnoremap <Leader>Q :ALEDetail<cr>
-    nnoremap <Leader>d :ALEGoToDefinition<cr>
-    nnoremap <Leader>D :ALEGoToDefinition<cr>
-    nnoremap <Leader>dt :ALEGoToDefinition -tab<cr>
-    nnoremap <Leader>ds :ALEGoToDefinition -split<cr>
-    nnoremap <Leader>dv :ALEGoToDefinition -vsplit<cr>
-    nnoremap <Leader>R :ALERename<cr>
-    nnoremap <Leader>r :ALEFindReferences<cr>
-    nnoremap <Leader>f :ALEFix<cr>
-    nnoremap <Leader>F :ALEFixSuggest<cr>
-    nnoremap <Leader>l :ALELint<cr>
-    nnoremap <Leader>n :ALENext<cr>
-    nnoremap <Leader>N :ALEPrevious<cr>
-
-    " Rust
-    let g:ale_rust_rls_toolchain= 'stable'
-
 endif
-
-
-" Load all plugins now.
-" Plugins need to be added to runtimepath before helptags can be generated.
-"packloadall
-" Load all of the helptags now, after plugins have been loaded.
-" All messages and errors will be ignored.
-"silent! helptags ALL
-

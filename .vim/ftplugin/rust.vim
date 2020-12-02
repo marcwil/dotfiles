@@ -1,3 +1,4 @@
+let g:ale_rust_rls_toolchain = 'stable'
 
 " Fix files with prettier, and then ESLint.
 let b:ale_linters = ['cargo', 'rls', 'rustc']
