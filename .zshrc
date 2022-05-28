@@ -29,6 +29,7 @@ alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 
 #Config
 setopt share_history
+unsetopt HIST_SAVE_NO_DUPS       # Write a duplicate event to the history file
 
 # Plugins
 source ~/.zsh/plugins/completion.zsh

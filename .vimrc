@@ -81,6 +81,8 @@ Plug 'vimwiki/vimwiki'
 Plug 'dense-analysis/ale'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
+Plug 'jupyter-vim/jupyter-vim'
+Plug 'cespare/vim-toml'
 if !has('nvim')
     Plug 'markonm/traces.vim'
 end
@@ -123,6 +125,14 @@ nnoremap <Leader>F :ALEFixSuggest<cr>
 nnoremap <Leader>l :ALELint<cr>
 nnoremap <Leader>n :ALENext<cr>
 nnoremap <Leader>N :ALEPrevious<cr>
+
+" Configuration of Jupyter-Vim
+nnoremap <localleader>s :JupyterConnect<cr>
+nnoremap <localleader>q :JupyterConnect<cr>
+nnoremap <localleader>c :JupyterSendCell<cr>
+nmap <localleader>e :JupyterSendRange<cr>
+nmap <localleader>E <Plug>JupyterRunTextObj
+nnoremap <localleader>Q :JupyterTerminateKernel
 
 if has('nvim')
     " like traces.vim (%s live preview)

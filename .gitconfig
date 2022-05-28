@@ -3,5 +3,10 @@
 	name = Marcus Wilhelm
 [diff]
 	submodule = log
+    tool = icdiff
+[difftool]
+    prompt = false
+[difftool "icdiff"]
+  cmd = /usr/bin/icdiff --line-numbers $LOCAL $REMOTE
 [credential]
 	helper = store
