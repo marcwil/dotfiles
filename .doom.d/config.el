@@ -75,3 +75,11 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
+
+
+;; https://orgmode.org/guide/Progress-Logging.html
+(setq org-log-done 'time)
+
+; https://emacs.stackexchange.com/questions/69454/emacs-doom-does-not-show-tabs-although-centaur-tabs-is-enabled
+(after! centaur-tabs (centaur-tabs-group-by-projectile-project))
+(setq centaur-tabs-set-bar 'under)
