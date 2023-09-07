@@ -15,7 +15,17 @@ let mapleader = " "
 syntax on
 set ai " autoindent
 set ts=4
-set nu
+
+" cool numbering
+" https://jeffkreeftmeijer.com/vim-number/
+:set number
+:augroup numbertoggle
+:  autocmd!
+:  autocmd BufEnter,FocusGained,InsertLeave,WinEnter * if &nu && mode() != "i" | set rnu   | endif
+:  autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu                  | set nornu | endif
+:augroup END
+" end cool numbering
+
 set background=dark
 set so=3
 nnoremap DD ddk
@@ -83,6 +93,7 @@ Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat'
 Plug 'jupyter-vim/jupyter-vim'
 Plug 'cespare/vim-toml'
+Plug 'kaarmu/typst.vim'
 if !has('nvim')
     Plug 'markonm/traces.vim'
 end
