@@ -10,3 +10,7 @@
   cmd = /usr/bin/icdiff --line-numbers $LOCAL $REMOTE
 [credential]
 	helper = store
+[init]
+	defaultBranch = main
+[pull]
+	rebase = false
