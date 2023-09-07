@@ -83,3 +83,16 @@
 ; https://emacs.stackexchange.com/questions/69454/emacs-doom-does-not-show-tabs-although-centaur-tabs-is-enabled
 (after! centaur-tabs (centaur-tabs-group-by-projectile-project))
 (setq centaur-tabs-set-bar 'under)
+
+(after! treemacs (treemacs-tag-follow-mode))
+
+(setq display-line-numbers-type 'relative)
+
+(add-hook 'text-mode-hook #'auto-fill-mode)
+; automatically set fill colum
+                                        ;
+(after! latex
+  (defun my/configure-latex ()
+    (set-fill-column 70)
+    (setq sentence-end-double-space t))
+  (add-hook! 'LaTeX-mode-hook #'my/configure-latex))
