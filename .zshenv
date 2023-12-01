@@ -15,4 +15,3 @@ export SAVEHIST=10000          # Maximum events in history file
 export GUROBI_HOME="/home/marcus/Software/gurobi911/linux64"
 export PATH="${PATH}:${GUROBI_HOME}/bin"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
-. "$HOME/.cargo/env"
