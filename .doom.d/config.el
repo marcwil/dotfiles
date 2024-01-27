@@ -33,7 +33,7 @@
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
-(setq doom-theme 'modus-operandi)
+(setq doom-theme 'doom-one-light)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -89,10 +89,13 @@
 (setq display-line-numbers-type 'relative)
 
 (add-hook 'text-mode-hook #'auto-fill-mode)
-; automatically set fill colum
-                                        ;
 (after! latex
   (defun my/configure-latex ()
+    "Customize LaTeX."
+    ; prevent complete after typing space
+    (setq-local company-begin-commands
+                (remove 'self-insert-command company-begin-commands))
+    ; automatically set fill column
     (set-fill-column 70)
     (setq sentence-end-double-space t))
   (add-hook! 'LaTeX-mode-hook #'my/configure-latex))
