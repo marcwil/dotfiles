@@ -27,6 +27,8 @@ alias ....="cd ../../.."
 alias gst="git status"
 alias config='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'
 
+alias vim="nvim"
+
 #Config
 setopt share_history
 unsetopt HIST_SAVE_NO_DUPS       # Write a duplicate event to the history file
