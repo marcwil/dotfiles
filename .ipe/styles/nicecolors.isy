@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE ipestyle SYSTEM "ipe.dtd">
+<ipestyle name="nicecolors">
+<color name="nice_black" value="0 0 0"/>
+<color name="nice_white" value="1 1 1"/>
+<color name="nice_blue" value="0 0.447 0.698"/>
+<color name="nice_bluegreen" value="0 0.619 0.45"/>
+<color name="nice_darkorange" value="0.835 0.384 0"/>
+<color name="nice_gray" value="0.6"/>
+<color name="nice_orange" value="0.901 0.623 0"/>
+<color name="nice_pink" value="0.8 0.474 0.654"/>
+<color name="nice_skyblue" value="0.337 0.705 0.913"/>
+<color name="nice_yellow" value="0.941 0.894 0.258"/>
+</ipestyle>

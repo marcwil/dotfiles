@@ -50,3 +50,17 @@
 ;(unpin! t)
 
 (package! smerge-mode)
+(package! csv-mode)
+(package! polymode)
+(package! typst-mode)
+
+;(use-package typst-mode
+;  :straight (:type git :host github :repo "Ziqi-Yang/typst-mode.el"))
+;(package! example
+;  :recipe (:host github :repo "username/my-example-fork"))
+
+;(package! typst-mode
+;  :recipe (:host github :repo "Ziqi-Yang/typst-mode.el"))
+;(package! typst-mode
+;  :recipe (:host github :repo "Ziqi-Yang/typst-mode.el"
+;           :files ("./typst-mode.el")))
