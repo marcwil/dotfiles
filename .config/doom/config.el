@@ -82,18 +82,16 @@
 
 (setq display-line-numbers-type 'relative)
 
+(add-hook 'text-mode-hook #'auto-fill-mode)
+
 (after! latex
   (defun my/configure-latex ()
     "Customize LaTeX."
-    ;; Ensure company-mode is active before modifying its variables.
-    (when (featurep 'company)
-      ;; Prevent company from completing after typing space.
-      (when (boundp 'company-begin-commands) ; Check if the variable is defined.
-        (setq-local company-begin-commands
-                    (remove 'self-insert-command company-begin-commands)))
-      ;; Automatically set fill column.
-      (set-fill-column 70)
-      (setq sentence-end-double-space t)))
+    ;; Automatically set fill column.
+    (set-fill-column 70)
+    (auto-fill-mode)
+    ;; Ensure the double-space sentence end is set for LaTeX modes.
+    (setq sentence-end-double-space t))
 
   ;; Add your custom function to LaTeX-mode-hook.
   (add-hook 'LaTeX-mode-hook #'my/configure-latex))
