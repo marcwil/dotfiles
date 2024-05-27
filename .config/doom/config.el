@@ -23,7 +23,9 @@
 ;;
 ;;(setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
 ;;      doom-variable-pitch-font (font-spec :family "Fira Sans" :size 13))
-(setq doom-font "Ubuntu Mono-13")
+(setq doom-font (font-spec :family "Source Code Pro" :size 16)
+      doom-variable-pitch-font (font-spec :family "Noto Serif" :size 16)
+      doom-big-font (font-spec :family "Source Code Pro" :size 20))
 ;;
 ;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
 ;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
@@ -80,7 +82,18 @@
 ;; https://orgmode.org/guide/Progress-Logging.html
 (setq org-log-done 'time)
 
+(after! evil-snipe
+  (setq evil-snipe-scope 'whole-visible
+        evil-snipe-repeat-scope 'whole-visible))
+
 (setq display-line-numbers-type 'relative)
+
+(use-package-hook! evil
+  :pre-init
+  (setq evil-respect-visual-line-mode t) ;; sane j and k behavior
+  t)
+
+(setq evil-respect-visual-line-mode t) ;; sane j and k behavior
 
 (add-hook 'text-mode-hook #'auto-fill-mode)
 

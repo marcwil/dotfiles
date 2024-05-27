@@ -43,7 +43,7 @@
        ;;neotree           ; a project drawer, like NERDTree for vim
        ophints           ; highlight the region an operation acts on
        (popup +defaults)   ; tame sudden yet inevitable temporary windows
-       (tabs +centaur-tabs)              ; a tab bar for Emacs
+       ;;(tabs +centaur-tabs)              ; a tab bar for Emacs
        (treemacs +lsp)          ; a project drawer, like neotree but cooler
        ;;unicode           ; extended unicode support for various languages
        vc-gutter         ; vcs diff in the fringe
@@ -192,3 +192,5 @@
        ;;literate
        (default +bindings +smartparens))
 
+; enable sane visual line jumping, see https://github.com/doomemacs/doomemacs/issues/401
+(setq evil-respect-visual-line-mode t)
