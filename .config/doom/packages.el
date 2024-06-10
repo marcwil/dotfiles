@@ -54,6 +54,9 @@
 (package! polymode)
 (package! typst-mode)
 
+(package! org-fragtog)
+
+(package! org-roam-ui)
 ;(use-package typst-mode
 ;  :straight (:type git :host github :repo "Ziqi-Yang/typst-mode.el"))
 ;(package! example

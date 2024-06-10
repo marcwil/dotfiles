@@ -108,3 +108,115 @@
 
   ;; Add your custom function to LaTeX-mode-hook.
   (add-hook 'LaTeX-mode-hook #'my/configure-latex))
+
+;; Set yasnippet directory
+(setq yas-snippet-dirs '("~/.config/doom/snippets"))
+
+
+(use-package! org-fragtog
+  :load-path "~/.config/emacs/.local/straight/repos/org-fragtog"
+  :hook (org-mode . org-fragtog-mode))
+
+; (use-package! org-fragtog
+; ;; https://www.reddit.com/r/emacs/comments/nkqaow/how_can_i_enable_inline_latex_previews_with_doom/
+;   :ensure t
+;   :after org
+;   :hook (org-mode . org-fragtog) ; this auto-enables it when you enter an org-buffer, remove if you do not want this
+;   :config
+;   ;; whatever you want
+;
+;   )
+
+(after! org
+  ;; Ensure pretty entities and LaTeX rendering
+  (setq org-pretty-entities t
+        org-hide-emphasis-markers t
+        org-format-latex-options (plist-put org-format-latex-options :scale 1.2)
+        org-preview-latex-default-process 'dvisvgm
+        org-preview-latex-image-directory (concat doom-cache-dir "ltximg/"))
+
+  ;; Prevent gray background in Org mode
+  (custom-set-faces
+   '(org-block ((t (:background unspecified))))
+   '(org-block-begin-line ((t (:background unspecified))))
+   '(org-block-end-line ((t (:background unspecified))))
+   '(org-latex-and-related ((t (:background unspecified)))))
+
+  ;; Automatically render LaTeX fragments upon saving the file
+  (add-hook 'org-mode-hook 'org-fragtog-mode)
+  (add-hook 'org-mode-hook 'org-preview-latex-fragment))
+
+;;
+;; ChatGPT Session
+;;
+
+;; Org mode settings
+(after! org
+  (setq org-agenda-files '("~/org/agenda")
+        org-capture-templates '(("t" "Todo" entry (file "~/org/inbox.org")
+                                 "* TODO %?\n%U\n%a\n" :clock-resume t)
+                                ("n" "Note" entry (file+headline "~/org/notes.org" "Notes")
+                                 "* %u %?\n%a\n" :clock-resume t))
+        org-log-done 'time
+        org-log-into-drawer t))
+
+;; Org-babel settings
+(after! org
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (python . t)
+     (shell . t)
+     (latex . t))))
+
+;; Better display of org files
+(after! org
+  (setq org-hide-emphasis-markers t))
+
+;; Org-roam settings
+        ;;   (after! org-roam
+        ;;     (setq org-roam-directory (file-truename "~/org/roam")
+        ;;           org-roam-completion-everywhere t
+        ;;           org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag))
+        ;;           )
+        ;;     (org-roam-db-autosync-mode)
+        ;;     )
+;; Org-roam primary and secondary directories configuration using use-package!
+(use-package! org-roam
+  :custom
+  (org-roam-directory (file-truename "~/org/roam"))
+  (org-roam-secondary-directory (file-truename "~/work/research/open/cptw_fpt/"))  ;; Secondary directory
+  (org-roam-completion-everywhere t)
+  (org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  :config
+  ;; Enable autosync for primary directory
+  (org-roam-db-autosync-mode)
+
+;;;;  ;; Function to scan and link secondary directory
+;;;;  (defun my/org-roam-secondary-scan ()
+;;;;    (let ((org-roam-directory org-roam-secondary-directory))
+;;;;      (org-roam-db-build-cache)))
+;;;;
+;;;;  ;; Add hook to automatically scan secondary directory after init
+;;;;  (add-hook 'after-init-hook #'my/org-roam-secondary-scan)
+;;;;
+;;;;  ;; Synchronize the Org-roam buffer with the current node
+;;;;  (add-hook 'find-file-hook 'org-roam-buffer-toggle-display)
+;;;;  (add-hook 'org-mode-hook (lambda () (org-roam-buffer-toggle-display t)))
+;;;;  (add-hook 'after-save-hook 'org-roam-buffer-refresh)
+)
+
+;; Keybinding to toggle the Org-roam buffer manually
+;(map! :leader
+;      :desc "Toggle Org-roam buffer" "n r b" #'org-roam-buffer-toggle)
+
+
+;; Org-roam UI tweaks
+(use-package! org-roam-ui
+  :after org-roam
+;  :hook (after-init . org-roam-ui-mode)
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
