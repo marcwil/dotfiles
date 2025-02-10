@@ -107,7 +107,16 @@
     (setq sentence-end-double-space t))
 
   ;; Add your custom function to LaTeX-mode-hook.
-  (add-hook 'LaTeX-mode-hook #'my/configure-latex))
+  (add-hook 'LaTeX-mode-hook #'my/configure-latex)
+
+  ;; Set Zathura as the default PDF viewer
+  (setq TeX-view-program-selection '((output-pdf "Zathura"))
+;;          TeX-view-program-list '(("Zathura"
+;;           ("zathura --synctex-forward %n:1:%b %o" (mode-io-correlate t))))
+  ))
+
+;; Associate .tex files with LaTeX-mode
+(add-to-list 'auto-mode-alist '("\\.tex\\'" . LaTeX-mode))
 
 ;; Set yasnippet directory
 (setq yas-snippet-dirs '("~/.config/doom/snippets"))
@@ -152,10 +161,10 @@
 
 ;; Org mode settings
 (after! org
-  (setq org-agenda-files '("~/org/agenda")
-        org-capture-templates '(("t" "Todo" entry (file "~/org/inbox.org")
+  (setq org-agenda-files '(list "~/org" "~/org/roam/inbox.org")
+        org-capture-templates '(("t" "Todo" entry (file "~/org/roam/inbox.org")
                                  "* TODO %?\n%U\n%a\n" :clock-resume t)
-                                ("n" "Note" entry (file+headline "~/org/notes.org" "Notes")
+                                ("n" "Note" entry (file+headline "~/org/roam/notes.org" "Notes")
                                  "* %u %?\n%a\n" :clock-resume t))
         org-log-done 'time
         org-log-into-drawer t))
@@ -171,7 +180,11 @@
 
 ;; Better display of org files
 (after! org
-  (setq org-hide-emphasis-markers t))
+  (setq org-hide-emphasis-markers t)
+  (setq org-agenda-files '("~/org" "~/org/roam")))
+
+(setq calendar-week-start-day 1)
+
 
 ;; Org-roam settings
         ;;   (after! org-roam
@@ -185,7 +198,7 @@
 (use-package! org-roam
   :custom
   (org-roam-directory (file-truename "~/org/roam"))
-  (org-roam-secondary-directory (file-truename "~/work/research/open/cptw_fpt/"))  ;; Secondary directory
+  ;(org-roam-secondary-directory (file-truename "~/work/research/open/cptw_fpt/"))  ;; Secondary directory
   (org-roam-completion-everywhere t)
   (org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   :config

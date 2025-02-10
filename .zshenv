@@ -16,3 +16,7 @@ export GUROBI_HOME="/home/marcus/Software/gurobi911/linux64"
 export PATH="${PATH}:${GUROBI_HOME}/bin"
 export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
 #. "$HOME/.cargo/env"
+
+# Begin added by argcomplete
+fpath=( /usr/lib/python3.12/site-packages/argcomplete/bash_completion.d "${fpath[@]}" )
+# End added by argcomplete
