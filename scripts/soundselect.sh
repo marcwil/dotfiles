@@ -15,20 +15,25 @@ list_devices() {
     fi
 
     if command -v pactl &>/dev/null; then
+        default_device=$(pactl get-default-"$pactl_type")
+
         pactl list short "${pactl_type}s" | while read -r id name rest; do
+            is_default=""
+            [[ "$name" == "$default_device" ]] && is_default="*"
+
             description=$(pactl list "${pactl_type}s" | awk -v name="$name" '
                 $0 ~ "Name: " name { found = 1 }
-                found && /Description:/ { 
-                    sub(/^[^:]+: /, "", $0); print $0; exit 
+                found && /Description:/ {
+                    sub(/^[^:]+: /, "", $0); print $0; exit
                 }
             ')
 
             plugged_in=$(pactl list "${pactl_type}s" | awk -v name="$name" '
                 $0 ~ "Name: " name { found = 1 }
-                found && /Active Port:/ { 
-                    if (index($NF, "unplugged") > 0) print "Unplugged"; 
-                    else print $NF; 
-                    exit 
+                found && /Active Port:/ {
+                    if (index($NF, "unplugged") > 0) print "Unplugged";
+                    else print $NF;
+                    exit
                 }
             ')
 
@@ -38,9 +43,9 @@ list_devices() {
             ')
 
             if [[ "$detailed" == "--detailed" ]]; then
-                echo -e "$id\t$name\t[$description]\tPlugged: $plugged_in\tVolume: ${volume:-N/A}"
+                echo -e "${is_default}${id}\t$name\t[$description]\tPlugged: $plugged_in\tVolume: ${volume:-N/A}"
             else
-                echo -e "$id\tPlugged: $plugged_in\tVolume: ${volume:-N/A}"
+                echo -e "${is_default}${id}\tPlugged: $plugged_in\tVolume: ${volume:-N/A}"
             fi
         done
     elif command -v wpctl &>/dev/null; then
@@ -49,7 +54,7 @@ list_devices() {
             /Audio/{ found = 0; }
             /\* / { found = 1; }
             found && (type == "input" && /input/ || type == "output" && /output/) {
-                gsub(/\* /, "", $0);
+                gsub(/\* /, "*", $0);
                 print NR-1, $0;
             }
         '
