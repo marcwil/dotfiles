@@ -116,7 +116,7 @@
   ))
 
 ;; Associate .tex files with LaTeX-mode
-(add-to-list 'auto-mode-alist '("\\.tex\\'" . LaTeX-mode))
+;(add-to-list 'auto-mode-alist '("\\.tex\\'" . LaTeX-mode))
 
 ;; Set yasnippet directory
 (setq yas-snippet-dirs '("~/.config/doom/snippets"))
