@@ -45,7 +45,7 @@ list_devices() {
             if [[ "$detailed" == "--detailed" ]]; then
                 echo -e "${is_default}${id}\t$name\t[$description]\tPlugged: $plugged_in\tVolume: ${volume:-N/A}"
             else
-                echo -e "${is_default}${id}\tPlugged: $plugged_in\tVolume: ${volume:-N/A}"
+                echo -e "${is_default}${id}\tPlugged: $description\tVolume: ${volume:-N/A}"
             fi
         done
     elif command -v wpctl &>/dev/null; then
