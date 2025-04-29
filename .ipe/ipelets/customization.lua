@@ -12,6 +12,8 @@ IpeletByName("align").skip = 8.0
 shortcuts.ipelet_14_align = "Alt+Shift+T"
 -- set skip
 shortcuts.ipelet_19_align = "Alt+Shift+S"
+-- strut
+shortcuts.ipelet_1_strut = "Alt+Shift+R"
 
 shortcuts.ipelet_1_hide = "Alt+Shift+H"
 shortcuts.ipelet_1_decorator = "Alt+Shift+D"
