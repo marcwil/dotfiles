@@ -219,5 +219,11 @@ hl.bind(mainMod .. " + N",           stash_window)    -- hide the active window
 hl.bind(mainMod .. " + CONTROL + N", restore_window)  -- bring back the last one
 hl.bind(mainMod .. " + SHIFT + N",   peek_stash)      -- peek at the stash
 
+-- Per-workspace layout switcher (scripts/layout-switch.sh)
+-- Runtime only: workspaces.lua is re-applied on every config reload, which will
+-- discard a pick made here. Shell script rather than Lua because the noctalia
+-- launcher is a blocking stdin/stdout round-trip.
+hl.bind(mainMod .. " + SHIFT + L", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/layout-switch.sh"))
+
 hl.bind(mainMod .. " + code:49", hl.dsp.exec_cmd("kitten quick-access-terminal"))
 
