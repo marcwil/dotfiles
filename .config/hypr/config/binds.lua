@@ -160,5 +160,64 @@ hl.bind(mainMod .. " + CONTROL + mouse_down", hl.dsp.focus({ workspace = "m+1" }
 hl.bind(mainMod .. " + SHIFT + S", hl.dsp.window.move({ workspace = "special" }))
 hl.bind(mainMod .. " + S",         hl.dsp.workspace.toggle_special())
 
+-- Per-workspace "minimize" stash
+-- Each normal workspace N has a companion special workspace `special:minN`,
+-- created lazily on first use. The target is resolved when the key is pressed,
+-- so one set of keys serves every workspace.
+--
+-- Done in Lua on purpose: `hyprctl dispatch` is evaluated as Lua by this config
+-- parser, so a shell script calling `hyprctl dispatch movetoworkspacesilent ...`
+-- fails silently (same family as `hyprctl keyword` not working here).
+local function stash_target()
+    local ws = hl.get_active_workspace()  -- stays the NORMAL ws even while a special is shown
+    if not ws or ws.special then return nil, nil end
+    return "special:min" .. ws.id, ws.id
+end
+
+local function stash_window()
+    local name = stash_target()
+    if not name then return end
+    -- follow = false keeps focus here instead of chasing the window into the stash
+    hl.dispatch(hl.dsp.window.move({ workspace = name, follow = false }))
+end
+
+local function restore_window()
+    local name, id = stash_target()
+    if not name then return end
+    local best
+    for _, w in ipairs(hl.get_workspace_windows(name) or {}) do
+        -- lowest focus_history_id = most recently focused = last one stashed
+        if not best or w.focus_history_id < best.focus_history_id then best = w end
+    end
+    if not best then return end
+    -- window.move takes no target-window option (passing one silently no-ops),
+    -- so focus it first and move it as the active window. That makes the focus
+    -- step load-bearing: if it ever fails, an unguarded move would drag whatever
+    -- IS active out of the stash instead. So confirm the target actually took
+    -- focus, and only then move it.
+    local function focused_is_target()
+        local a = hl.get_active_window()
+        return a ~= nil and a.address == best.address
+    end
+    hl.dispatch(hl.dsp.focus({ window = best }))
+    if not focused_is_target() then
+        -- Fallback: surface the stash, which makes its windows focusable, retry.
+        hl.dispatch(hl.dsp.workspace.toggle_special("min" .. id))
+        hl.dispatch(hl.dsp.focus({ window = best }))
+        if not focused_is_target() then return end  -- give up rather than move the wrong window
+    end
+    hl.dispatch(hl.dsp.window.move({ workspace = id }))
+end
+
+local function peek_stash()
+    local ws = hl.get_active_workspace()
+    if not ws or ws.special then return end
+    hl.dispatch(hl.dsp.workspace.toggle_special("min" .. ws.id))  -- name, no "special:" prefix
+end
+
+hl.bind(mainMod .. " + N",           stash_window)    -- hide the active window
+hl.bind(mainMod .. " + CONTROL + N", restore_window)  -- bring back the last one
+hl.bind(mainMod .. " + SHIFT + N",   peek_stash)      -- peek at the stash
+
 hl.bind(mainMod .. " + code:49", hl.dsp.exec_cmd("kitten quick-access-terminal"))
 
