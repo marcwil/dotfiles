@@ -11,7 +11,7 @@ hl.config({
             splash = CACHYLGREEN,
         },
         middle_click_paste = false,
-        enable_swallow = true,
+        enable_swallow = false,
         swallow_regex = "(kitty|ghostty|[Kk]onsole|Alacritty|gnome-terminal|xfce[0-9]?-terminal)",
         vrr = 3,
     },
