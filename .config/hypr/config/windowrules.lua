@@ -79,6 +79,7 @@ local floatApps = {
     { class = "^(kvantummanager|qt[56]ct|nwg-look)$" },
     { class = "^(org.pulseaudio.pavucontrol|blueman-manager|nm-applet|nm-connection-editor)$" },
     { title = "^(Winetricks.*|Protontricks.*)$" },
+    { title = "^(Ipe: waiting)$" },
 }
 for _, m in ipairs(floatApps) do hl.window_rule({ match = m, float = true }) end
 
