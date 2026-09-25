@@ -34,14 +34,14 @@ hl.device({
 })
 
 
-hl.gesture({ fingers = 4, direction = "horizontal", action = "workspace" })
+hl.gesture({ fingers = 4, direction = "vertical", action = "workspace" })
 
 -- 3 fingers (any direction) = move the focused window; SUPER + 3 fingers = resize it
 hl.gesture({ fingers = 3, direction = "swipe",                 action = "move" })
 hl.gesture({ fingers = 3, direction = "swipe", mods = "SUPER", action = "resize" })
 
--- SUPER + 4 fingers horizontal = scroll the tape (scrolling layout only; no-op elsewhere)
-hl.gesture({ fingers = 4, direction = "horizontal", mods = "SUPER", action = "scroll_move" })
+-- 4 fingers horizontal = scroll the tape (scrolling layout only; no-op elsewhere)
+hl.gesture({ fingers = 4, direction = "horizontal", action = "scroll_move" })
 
 -- Old 3-finger gestures — commented out, they conflicted with move/resize above.
 -- Equivalent keybinds still exist: Super+Q (close), Super+F (fullscreen), Super+Alt+Space (float).
