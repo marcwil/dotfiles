@@ -15,9 +15,13 @@
 -- 1-3 always come back to the laptop screen. Everything else (4+) is dynamic and lands on
 -- whatever monitor you create it on - habit becomes "low numbers = laptop, higher = external".
 
-hl.workspace_rule({ workspace = "1", monitor = "eDP-1", persistent = true })
-hl.workspace_rule({ workspace = "2", monitor = "eDP-1", persistent = true })
-hl.workspace_rule({ workspace = "3", monitor = "eDP-1", persistent = true, layout = "scrolling" })
+for i = 1, NUM_WPM do
+    local key = i % 10
+    hl.workspace_rule({ workspace = key, layout = "scrolling" })
+end
+--hl.workspace_rule({ workspace = "1", monitor = "eDP-1", persistent = true })
+--hl.workspace_rule({ workspace = "2", monitor = "eDP-1", persistent = true })
+--hl.workspace_rule({ workspace = "3", monitor = "eDP-1", persistent = true, layout = "scrolling" })
 
 -- Per-workspace layout example (see the scrolling / master layout pages):
 -- hl.workspace_rule({ workspace = "4", layout = "master" })
