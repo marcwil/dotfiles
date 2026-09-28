@@ -7,3 +7,5 @@ source /usr/share/cachyos-fish-config/cachyos-config.fish
 #end
 export PATH="$HOME/.local/bin:$PATH"
 export EDITOR="vim"
+
+zoxide init fish | source
