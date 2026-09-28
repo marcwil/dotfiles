@@ -6,7 +6,7 @@ hl.config({
         accel_profile = "adaptive",
 	kb_layout = "de,de,us",
 	kb_variant = "neo,,",
-	kb_options = "grp:alt_shift_toggle",
+	--kb_options = "grp:alt_shift_toggle",
         follow_mouse = 1,
         emulate_discrete_scroll = 2,  -- make trackpoint / touchpad scroll drive scroll binds like a real wheel (0 off, 1 non-standard only, 2 all)
         touchpad = {

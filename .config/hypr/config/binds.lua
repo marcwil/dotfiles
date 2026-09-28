@@ -55,8 +55,8 @@ local function zoomfunction(value)
         hl.config({ cursor = { zoom_factor = zoomvalue + value } })
     end
 end
-hl.bind(mainMod .. " + Minus", function() zoomfunction(-0.3) end, { repeating = true})
-hl.bind(mainMod .. " + Plus", function() zoomfunction(0.3) end, { repeating = true })
+--hl.bind(mainMod .. " + Minus", function() zoomfunction(-0.3) end, { repeating = true})
+--hl.bind(mainMod .. " + Plus", function() zoomfunction(0.3) end, { repeating = true })
 
 --# Zoom with keypad
 hl.bind(mainMod .. " + code:82", function() zoomfunction(-0.3) end, { repeating = true })
@@ -234,3 +234,8 @@ hl.bind(mainMod .. " + SHIFT + L", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/l
 
 hl.bind(mainMod .. " + code:49", hl.dsp.exec_cmd("kitten quick-access-terminal"))
 
+-- Cycle keyboard layouts (neo -> de -> us). Bound by keycode, not keysym: the
+-- key right of Ü produces a different symbol in each layout, so a keysym bind
+-- would stop working as soon as it switched away from the layout it matched.
+-- code:35 = xkb keycode (evdev KEY_RIGHTBRACE 27 + 8).
+hl.bind(mainMod .. " + code:35", hl.dsp.exec_cmd("hyprctl switchxkblayout all next"))
