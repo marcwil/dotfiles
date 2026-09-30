@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Nag (never delete on its own) when the trash has old or bulky contents.
+# Run daily by ~/.config/systemd/user/trash-reminder.timer.
+#
+# Triggers: any item trashed more than MAX_AGE_DAYS ago, or the home trash
+# larger than MAX_SIZE_GB. The notification offers "Empty old" (only the
+# items past MAX_AGE_DAYS) and "Open trash"; dismissing it does nothing.
+set -euo pipefail
+
+MAX_AGE_DAYS=30
+MAX_SIZE_GB=3
+trash_dir="${XDG_DATA_HOME:-$HOME/.local/share}/Trash"
+
+# trash-list prints "YYYY-MM-DD HH:MM:SS /original/path", one item per line;
+# ISO dates compare correctly as strings. It also covers other drives' trash.
+cutoff=$(date -d "$MAX_AGE_DAYS days ago" +%F)
+old_count=$(trash-list 2>/dev/null | awk -v c="$cutoff" '$1 < c' | wc -l)
+
+size_kb=$(du -sk "$trash_dir" 2>/dev/null | cut -f1 || true)
+size_kb=${size_kb:-0}
+size_h=$(du -sh "$trash_dir" 2>/dev/null | cut -f1 || echo 0)
+
+too_old=$(( old_count > 0 ))
+too_big=$(( size_kb > MAX_SIZE_GB * 1024 * 1024 ))
+(( too_old || too_big )) || exit 0
+
+if (( too_old )); then
+    (( old_count == 1 )) && items=item || items=items
+    title="Trash: $old_count $items older than $MAX_AGE_DAYS days"
+    actions=(-A empty-old="Empty old" -A open="Open trash")
+else
+    title="Trash is over $MAX_SIZE_GB GB"
+    actions=(-A open="Open trash")
+fi
+
+# -A makes notify-send block until a button is clicked or the notification
+# is dismissed, then print the chosen action name (nothing if dismissed).
+choice=$(notify-send -a Trash -i user-trash-full "$title" "Total: $size_h" "${actions[@]}" || true)
+
+case "$choice" in
+    empty-old) trash-empty -f "$MAX_AGE_DAYS" ;;
+    open)      setsid -f dolphin trash:/ >/dev/null 2>&1 ;;
+esac

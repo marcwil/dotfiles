@@ -1,0 +1,6 @@
+[Unit]
+Description=Remind me to clean old or bulky trash
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/trash-reminder
