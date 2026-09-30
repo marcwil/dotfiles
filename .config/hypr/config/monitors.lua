@@ -41,7 +41,7 @@ end
 
 -- Laptop panel 1.33; external monitors 1 unless they are 4K-wide
 local function default_scale(m)
-    if m.name:match("^eDP") or m.width >= 3840 then return "1.33" end
+    if m.name:match("^eDP") or m.width >= 3840 then return "1.25" end
     return "1"
 end
 
