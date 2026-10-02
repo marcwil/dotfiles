@@ -1,0 +1,13 @@
+[Unit]
+Description=Noctalia desktop shell
+PartOf=graphical-session.target
+After=graphical-session.target
+Requisite=graphical-session.target
+
+[Service]
+ExecStart=/usr/bin/noctalia
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target
