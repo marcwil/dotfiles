@@ -1,0 +1,12 @@
+[Unit]
+Description=Unlock KWallet from PAM login credentials
+PartOf=graphical-session.target
+After=graphical-session.target
+Before=xdg-desktop-autostart.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/pam_kwallet_init
+
+[Install]
+WantedBy=graphical-session.target
