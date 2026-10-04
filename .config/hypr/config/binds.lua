@@ -10,7 +10,36 @@ local launchPrefix = "uwsm app -- " -- if you are not using UWSM, make this empt
 hl.bind(mainMod .. " + SHIFT + Escape", hl.dsp.exec_cmd("hyprctl kill"))  -- arms click-to-kill mode
 hl.bind(mainMod .. " + Q",           hl.dsp.window.close())
 hl.bind(mainMod .. " + ALT + Space", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + M",           hl.dsp.window.fullscreen({ mode = 1 }))
+-- Super+M: "smart maximize". On the scrolling layout, real maximize hides the
+-- tape, so instead widen the column to the full viewport (colresize 1.0) and
+-- toggle back to the column's previous width on the next press. Elsewhere (and
+-- for floating windows) it's the normal maximize toggle. Super+Shift+M = always
+-- the real maximize.
+local prev_col_width = {}  -- window address -> width fraction before widening
+local function smart_maximize()
+    local w = hl.get_active_window()
+    local ws = hl.get_active_workspace()
+    if not w or not ws or ws.tiled_layout ~= "scrolling" or w.floating then
+        hl.dispatch(hl.dsp.window.fullscreen({ mode = 1 }))
+        return
+    end
+    local mon = hl.get_active_monitor()
+    local prev = prev_col_width[w.address]
+    if prev then
+        prev_col_width[w.address] = nil
+        hl.dispatch(hl.dsp.layout("colresize " .. prev))
+    else
+        -- remember current width as a fraction of the monitor's logical width
+        local frac = 0.5
+        if mon and mon.width and mon.scale then
+            frac = math.min(1, w.size.x / (mon.width / mon.scale))
+        end
+        prev_col_width[w.address] = string.format("%.3f", frac)
+        hl.dispatch(hl.dsp.layout("colresize 1.0"))
+    end
+end
+hl.bind(mainMod .. " + M",           smart_maximize)
+hl.bind(mainMod .. " + SHIFT + M",   hl.dsp.window.fullscreen({ mode = 1 }))
 hl.bind(mainMod .. " + F",           hl.dsp.window.fullscreen())
 hl.bind(mainMod .. " + J",           hl.dsp.layout("togglesplit"))
 
