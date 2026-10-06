@@ -128,7 +128,7 @@ hl.window_rule({
 })
 
 hl.window_rule({
-    match = { class = "^(signal|discord|org.telegram.desktop|org.mozilla.Thunderbird)$" },
+    match = { class = "^(signal|discord|com.slack.Slack|org.telegram.desktop|org.mozilla.Thunderbird)$" },
     scrolling_width = 0.66,
 })
 

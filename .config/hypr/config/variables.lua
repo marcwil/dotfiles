@@ -5,6 +5,13 @@ FILE_MANAGER = "dolphin"
 BROWSER      = "firefox"
 EDITOR       = "gnome-text-editor --new-window"
 CALCULATOR   = "gnome-calculator"
+PASSWORDS    = "keepassxc"
+CHAT         = "discord"
+MAIL         = "thunderbird"
+SIGNAL       = "signal-desktop"
+TELEGRAM     = "Telegram"
+SLACK        = "flatpak run com.slack.Slack"
+STEAM        = "steam"
 
 -- Monitors
 MONITOR1 = ""

@@ -41,13 +41,31 @@ end
 hl.bind(mainMod .. " + M",           smart_maximize)
 hl.bind(mainMod .. " + SHIFT + M",   hl.dsp.window.fullscreen({ mode = 1 }))
 hl.bind(mainMod .. " + F",           hl.dsp.window.fullscreen())
-hl.bind(mainMod .. " + J",           hl.dsp.layout("togglesplit"))
+-- Super+J: layout-aware "rearrange". Dwindle flips the split direction; master
+-- swaps the focused window with the master (awesome's Mod+Ctrl+Return).
+local function smart_rearrange()
+    local ws = hl.get_active_workspace()
+    if ws and ws.tiled_layout == "master" then
+        hl.dispatch(hl.dsp.layout("swapwithmaster"))
+    else
+        hl.dispatch(hl.dsp.layout("togglesplit"))
+    end
+end
+hl.bind(mainMod .. " + J",           smart_rearrange)
 
 -- Change focus
 hl.bind(mainMod .. " + Left",  hl.dsp.focus({ direction = "left" }))
 hl.bind(mainMod .. " + Right", hl.dsp.focus({ direction = "right" }))
 hl.bind(mainMod .. " + Up",    hl.dsp.focus({ direction = "up" }))
 hl.bind(mainMod .. " + Down",  hl.dsp.focus({ direction = "down" }))
+-- Neo layer-4 arrow cluster (i/l/a/e), Shift moves the window. Bound by keysym,
+-- so these only exist under neo: by keycode they'd land on S/F in de/us and
+-- collide with the scratchpad and fullscreen binds.
+local neoArrows = { I = "left", L = "up", A = "down", E = "right" }
+for key, dir in pairs(neoArrows) do
+    hl.bind(mainMod .. " + " .. key,         hl.dsp.focus({ direction = dir }))
+    hl.bind(mainMod .. " + SHIFT + " .. key, hl.dsp.window.move({ direction = dir:sub(1, 1) }))
+end
 hl.bind("ALT + Tab",           hl.dsp.window.cycle_next())
 hl.bind(mainMod .. " + Tab",   hl.dsp.exec_cmd(noctCall .. "window-switcher"))
 
@@ -96,19 +114,19 @@ hl.bind(mainMod .. " + code:86", function() zoomfunction(0.3) end, { repeating =
 ---- LAUNCHER ----
 ------------------
 
+-- Only the everyday ones are direct binds; the rest live in the app mode
+-- (Super+C) and noctalia mode (Super+X), see MODES below.
 hl.bind(mainMod .. " + Return",     hl.dsp.exec_cmd(launchPrefix .. TERMINAL))
-hl.bind(mainMod .. " + E",          hl.dsp.exec_cmd(launchPrefix .. FILE_MANAGER))
-hl.bind(mainMod .. " + T",          hl.dsp.exec_cmd(launchPrefix .. EDITOR))
-hl.bind(mainMod .. " + C",          hl.dsp.exec_cmd(launchPrefix .. CALCULATOR))
 hl.bind("XF86Calculator",           hl.dsp.exec_cmd(launchPrefix .. CALCULATOR))
-hl.bind(mainMod .. " + W",          hl.dsp.exec_cmd(launchPrefix .. BROWSER))
 hl.bind("CONTROL + SHIFT + Escape", hl.dsp.exec_cmd(launchPrefix .. TERMINAL .. " -e btop"))
-hl.bind(mainMod .. " + Z",          hl.dsp.exec_cmd(noctCall .. "settings-toggle"))
-hl.bind(mainMod .. " + X",          hl.dsp.exec_cmd(noctCall .. "panel-toggle control-center"))
 hl.bind(mainMod .. " + Space",      hl.dsp.exec_cmd(noctCall .. "panel-toggle launcher"))
-hl.bind(mainMod .. " + period",     hl.dsp.exec_cmd(noctCall .. "panel-toggle launcher /emo"))
-hl.bind(mainMod .. " + L",          hl.dsp.exec_cmd(noctCall .. "session lock"))
-hl.bind(mainMod .. " + ALT + C",    hl.dsp.exec_cmd(noctCall .. "panel-toggle session"))
+-- Lenovo BT keyboard's lock key: keyd turns its ⊞+L combo into XF86ScreenSaver
+-- (/etc/keyd/lenovo-bt.conf). Bound with and without Super in case the modifier
+-- is still held when the key arrives.
+hl.bind("XF86ScreenSaver",                 hl.dsp.exec_cmd(noctCall .. "session lock"))
+hl.bind(mainMod .. " + XF86ScreenSaver",   hl.dsp.exec_cmd(noctCall .. "session lock"))
+-- Laptop keyboard: the hang-up key (XF86HangupPhone) doubles as a one-key lock.
+hl.bind("XF86HangupPhone",                 hl.dsp.exec_cmd(noctCall .. "session lock"))
 
 ---------------------------
 ---- HARDWARE CONTROLS ----
@@ -138,15 +156,6 @@ hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd(noctCall .. "brightness-down"),
 hl.bind(mainMod .. " + P",     hl.dsp.exec_cmd("hyprpicker -a -n"))
 hl.bind("Print",               hl.dsp.exec_cmd(noctCall .. "screenshot-region"))
 hl.bind(mainMod .. " + Print", hl.dsp.exec_cmd(noctCall .. "screenshot-fullscreen"))
-
--- Theming and Wallpaper
-hl.bind(mainMod .. " + SHIFT + W", hl.dsp.exec_cmd(noctCall .. "panel-toggle wallpaper"))
-
--- Clipboard
-hl.bind(mainMod .. " + V", hl.dsp.exec_cmd(noctCall .. "panel-toggle clipboard"))
-
--- Notifications
-hl.bind(mainMod .. " + A", hl.dsp.exec_cmd(noctCall .. "panel-toggle control-center notifications"))
 
 -------------------------------
 ---- WORKSPACES & MONITORS ----
@@ -259,9 +268,153 @@ hl.bind(mainMod .. " + SHIFT + N",   peek_stash)      -- peek at the stash
 -- Runtime only: workspaces.lua is re-applied on every config reload, which will
 -- discard a pick made here. Shell script rather than Lua because the noctalia
 -- launcher is a blocking stdin/stdout round-trip.
-hl.bind(mainMod .. " + SHIFT + L", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/layout-switch.sh"))
+hl.bind(mainMod .. " + CONTROL + Space", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/layout-switch.sh"))
 
 hl.bind(mainMod .. " + code:49", hl.dsp.exec_cmd("kitten quick-access-terminal"))
+
+-------------------------
+---- MODES (SUBMAPS) ----
+-------------------------
+
+-- Modal keymaps, like awesome's modal keygrabbers. Enter with a Super combo,
+-- then use bare keys; Escape/Space/Return leave. Each mode's hint text is shown as a
+-- notification for as long as the mode is active (see the keybinds.submap hook).
+-- A hint is either a string or a function returning one (evaluated on entry).
+local submap_hints = {}
+
+local function is_master()
+    local ws = hl.get_active_workspace()
+    return ws and ws.tiled_layout == "master"
+end
+
+-- Run the master layoutmsg on master workspaces, otherwise resize the focused
+-- window by (dx, dy) pixels.
+local function master_or_resize(msg, dx, dy)
+    return function()
+        if is_master() then
+            hl.dispatch(hl.dsp.layout(msg))
+        else
+            hl.dispatch(hl.dsp.window.resize({ x = dx, y = dy, relative = true }))
+        end
+    end
+end
+
+-- Super+V: layout mode. Master: mfact/nmaster/orientation. Elsewhere (dwindle,
+-- scrolling): the arrows resize the focused window.
+submap_hints.layout = function()
+    if is_master() then
+        return table.concat({
+            "-- LAYOUT (master) --",
+            "←/→  master width -/+",
+            "↑/↓  masters +/-",
+            "J    swap with master",
+            "O    cycle master orientation",
+            "Esc/␣ leave",
+        }, "\n")
+    end
+    return table.concat({
+        "-- LAYOUT (resize) --",
+        "←/→  narrower / wider",
+        "↑/↓  shorter / taller",
+        "J    toggle split",
+        "Esc/␣ leave",
+    }, "\n")
+end
+
+local step = 40  -- px per resize keypress
+hl.bind(mainMod .. " + V", hl.dsp.submap("layout"))
+hl.define_submap("layout", function()
+    -- Each direction also on its Neo2 home-row key (i/e/l/a = left/right/up/
+    -- down), bound by keycode (QWERTZ s/f/e/d) so it works in every xkb layout.
+    local dirs = {
+        { keys = { "Left",  "code:39" }, fn = master_or_resize("mfact -0.05",  -step, 0) },
+        { keys = { "Right", "code:41" }, fn = master_or_resize("mfact +0.05",   step, 0) },
+        { keys = { "Up",    "code:26" }, fn = master_or_resize("addmaster",     0, -step) },
+        { keys = { "Down",  "code:40" }, fn = master_or_resize("removemaster",  0,  step) },
+    }
+    for _, d in ipairs(dirs) do
+        for _, key in ipairs(d.keys) do
+            hl.bind(key, d.fn, { repeating = true })
+        end
+    end
+    hl.bind("J",      smart_rearrange)
+    hl.bind("O",      hl.dsp.layout("orientationcycle"))
+    hl.bind("Escape", hl.dsp.submap("reset"))
+    hl.bind("Return", hl.dsp.submap("reset"))
+    hl.bind("Space",  hl.dsp.submap("reset"))
+end)
+
+-- One-shot modes: each key runs its command and leaves the mode right away.
+-- Keys are bound by keysym (mnemonic letters follow the active xkb layout).
+-- entries = { { key, label, cmd, shown_key? }, ... }; the hint text is generated
+-- from them (shown_key overrides how the key is printed, e.g. "SHIFT + W" -> "⇧W").
+local function oneshot_mode(name, entry_key, title, entries)
+    local lines = { "-- " .. title .. " --" }
+    for _, e in ipairs(entries) do
+        local shown = e[4] or e[1]  -- pad by characters, not bytes (⇧ is 3 bytes)
+        lines[#lines + 1] = shown .. string.rep(" ", 7 - utf8.len(shown)) .. e[2]
+    end
+    lines[#lines + 1] = "Esc/␣  leave"
+    submap_hints[name] = table.concat(lines, "\n")
+
+    hl.bind(entry_key, hl.dsp.submap(name))
+    hl.define_submap(name, function()
+        for _, e in ipairs(entries) do
+            hl.bind(e[1], function()
+                hl.dispatch(hl.dsp.submap("reset"))
+                hl.dispatch(hl.dsp.exec_cmd(e[3]))
+            end)
+        end
+        hl.bind("Escape", hl.dsp.submap("reset"))
+        hl.bind("Space",  hl.dsp.submap("reset"))
+    end)
+end
+
+-- Super+C: app mode
+oneshot_mode("apps", mainMod .. " + C", "APPS", {
+    { "Return", "terminal",   launchPrefix .. TERMINAL },
+    { "E",      "files",      launchPrefix .. FILE_MANAGER },
+    { "W",      "browser",    launchPrefix .. BROWSER },
+    { "T",      "editor",     launchPrefix .. EDITOR },
+    { "C",      "calculator", launchPrefix .. CALCULATOR },
+    { "K",      "keepassxc",  launchPrefix .. PASSWORDS },
+    { "D",      "discord",    launchPrefix .. CHAT },
+    { "M",      "thunderbird", launchPrefix .. MAIL },
+    { "S",      "signal",     launchPrefix .. SIGNAL },
+    { "SHIFT + T", "telegram", launchPrefix .. TELEGRAM, "⇧T" },
+    { "L",      "slack",      launchPrefix .. SLACK },
+    { "SHIFT + S", "steam",   launchPrefix .. STEAM, "⇧S" },
+    { "B",      "btop",       launchPrefix .. TERMINAL .. " -e btop" },
+})
+
+-- Super+X: noctalia mode
+oneshot_mode("noctalia", mainMod .. " + X", "NOCTALIA", {
+    { "X", "control center", noctCall .. "panel-toggle control-center" },
+    { "A", "audio",          noctCall .. "panel-toggle control-center audio" },
+    { "D", "displays",       noctCall .. "panel-toggle control-center monitor" },
+    { "W", "wifi",           noctCall .. "panel-toggle control-center network" },
+    { "B", "bluetooth",      noctCall .. "panel-toggle control-center bluetooth" },
+    { "N", "notifications",  noctCall .. "panel-toggle control-center notifications" },
+    { "S", "settings",       noctCall .. "settings-toggle" },
+    { "V", "clipboard",      noctCall .. "panel-toggle clipboard" },
+    { "SHIFT + W", "wallpaper", noctCall .. "panel-toggle wallpaper", "⇧W" },
+    { "E", "emoji",          noctCall .. "panel-toggle launcher /emo" },
+    { "P", "session/power",  noctCall .. "panel-toggle session" },
+})
+
+-- Show the active mode's hints; drop them when the mode changes or ends.
+local submap_note
+hl.on("keybinds.submap", function()
+    if submap_note then
+        submap_note:dismiss()
+        submap_note = nil
+    end
+    local hint = submap_hints[hl.get_current_submap()]
+    if type(hint) == "function" then hint = hint() end
+    if hint then
+        submap_note = hl.notification.create({ text = hint, timeout = 600000 })
+    end
+end)
 
 -- Cycle keyboard layouts (neo -> de -> us). Bound by keycode, not keysym: the
 -- key right of Ü produces a different symbol in each layout, so a keysym bind
