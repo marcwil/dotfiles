@@ -2,7 +2,7 @@
 
 hl.config({
     input = {
-        sensitivity = 0.15,
+        sensitivity = 0.5,
         accel_profile = "adaptive",
 	kb_layout = "de,de,us",
 	kb_variant = "neo,,",
@@ -10,6 +10,7 @@ hl.config({
         follow_mouse = 1,
         emulate_discrete_scroll = 2,  -- make trackpoint / touchpad scroll drive scroll binds like a real wheel (0 off, 1 non-standard only, 2 all)
         touchpad = {
+            --sensitivity = 0.4,
             natural_scroll = true,
             tap_to_click = true,
             tap_and_drag = true,
@@ -29,16 +30,16 @@ hl.config({
 
 hl.device({
     name        = "tpps/2-elan-trackpoint",
-    sensitivity = 0.6,   -- pick an absolute value: per-device sensitivity REPLACES the
+    sensitivity = 0.9,   -- pick an absolute value: per-device sensitivity REPLACES the
                          -- global for this device, it does not add to it
 })
 
 
 hl.gesture({ fingers = 4, direction = "vertical", action = "workspace" })
 
--- 3 fingers (any direction) = move the focused window; SUPER + 3 fingers = resize it
-hl.gesture({ fingers = 3, direction = "swipe",                 action = "move" })
-hl.gesture({ fingers = 3, direction = "swipe", mods = "SUPER", action = "resize" })
+-- 3 fingers (any direction) = resize the focused window; SUPER + 3 fingers = move it
+hl.gesture({ fingers = 3, direction = "swipe", mods = "SUPER", action = "move" })
+hl.gesture({ fingers = 3, direction = "swipe",                 action = "resize" })
 
 -- 4 fingers horizontal = scroll the tape (scrolling layout only; no-op elsewhere)
 hl.gesture({ fingers = 4, direction = "horizontal", action = "scroll_move" })
