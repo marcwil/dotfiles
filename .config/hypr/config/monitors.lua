@@ -120,7 +120,7 @@ local function save_profile()
     -- Register the saved layout as Hyprland's monitor rules right away. Until
     -- then the rules are still whatever the last load produced (e.g. fallback
     -- "auto" positions), and anything that makes Hyprland re-apply its rules
-    -- (like a runtime workspace_rule from layout-switch.sh) would snap back to
+    -- (like a runtime workspace_rule from the Super+Shift+V layout picker) would snap back to
     -- those. No visible change: the rules match what's on screen.
     apply_profile()
     hl.notification.create({

@@ -10,7 +10,7 @@ local modal = require("lib.modalmap")
 -- Window manipulation
 hl.bind(mainMod .. " + SHIFT + Escape", hl.dsp.exec_cmd("hyprctl kill"))  -- arms click-to-kill mode
 hl.bind(mainMod .. " + Q",           hl.dsp.window.close())
-hl.bind(mainMod .. " + ALT + Space", hl.dsp.window.float({ action = "toggle" }))
+hl.bind(mainMod .. " + CONTROL + Space", hl.dsp.window.float({ action = "toggle" }))
 -- Super+M: "smart maximize". On the scrolling layout, real maximize hides the
 -- tape, so instead widen the column to the full viewport (colresize 1.0) and
 -- toggle back to the column's previous width on the next press. Elsewhere (and
@@ -266,12 +266,6 @@ hl.bind(mainMod .. " + N",           stash_window)    -- hide the active window
 hl.bind(mainMod .. " + CONTROL + N", restore_window)  -- bring back the last one
 hl.bind(mainMod .. " + SHIFT + N",   peek_stash)      -- peek at the stash
 
--- Per-workspace layout switcher (scripts/layout-switch.sh)
--- Runtime only: workspaces.lua is re-applied on every config reload, which will
--- discard a pick made here. Shell script rather than Lua because the noctalia
--- launcher is a blocking stdin/stdout round-trip.
-hl.bind(mainMod .. " + CONTROL + Space", hl.dsp.exec_cmd("$HOME/.config/hypr/scripts/layout-switch.sh"))
-
 hl.bind(mainMod .. " + code:49", hl.dsp.exec_cmd("kitten quick-access-terminal"))
 
 -------------------------
@@ -347,6 +341,32 @@ modal.mode("layout", {
 
 -- One-shot modes: each key runs its action and leaves the mode right away.
 -- Keys are bound by keysym (mnemonic letters follow the active xkb layout).
+
+-- Super+Shift+V: pick the current workspace's layout (Super+V tunes it).
+-- Runtime only: workspaces.lua is re-applied on every config reload, which
+-- discards a pick made here.
+local layout_key = { dwindle = "1", master = "2", scrolling = "3" }
+local function set_layout(name)
+    return function()
+        local ws = hl.get_active_workspace()  -- stays the NORMAL ws even while a special is shown
+        if not ws or ws.special then return end
+        -- only workspace + layout: rules merge, so monitor/persistent pinning is kept
+        hl.workspace_rule({ workspace = tostring(ws.id), layout = name })
+    end
+end
+modal.oneshot("layoutpick", {
+    key    = mainMod .. " + SHIFT + V",
+    title  = "PICK LAYOUT",
+    active = function()
+        local ws = hl.get_active_workspace()
+        return ws and layout_key[ws.tiled_layout]
+    end,
+    entries = {
+        { "1", "dwindle",   set_layout("dwindle") },
+        { "2", "master",    set_layout("master") },
+        { "3", "scrolling", set_layout("scrolling") },
+    },
+})
 
 -- Super+X: app mode
 modal.oneshot("apps", {
