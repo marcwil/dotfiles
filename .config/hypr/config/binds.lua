@@ -1,6 +1,7 @@
 local mainMod = "SUPER"
 local noctCall = "noctalia msg "
 local launchPrefix = "uwsm app -- " -- if you are not using UWSM, make this empty (e.g. "")
+local modal = require("lib.modalmap")
 
 ---------------------------
 ---- WINDOW MANAGEMENT ----
@@ -47,9 +48,10 @@ local function smart_rearrange()
     local ws = hl.get_active_workspace()
     if ws and ws.tiled_layout == "master" then
         hl.dispatch(hl.dsp.layout("swapwithmaster"))
-    else
+    elseif ws and ws.tiled_layout == "dwindle" then
         hl.dispatch(hl.dsp.layout("togglesplit"))
     end
+    -- scrolling (or any other layout): do nothing
 end
 hl.bind(mainMod .. " + J",           smart_rearrange)
 
@@ -115,7 +117,7 @@ hl.bind(mainMod .. " + code:86", function() zoomfunction(0.3) end, { repeating =
 ------------------
 
 -- Only the everyday ones are direct binds; the rest live in the app mode
--- (Super+C) and noctalia mode (Super+X), see MODES below.
+-- (Super+X) and noctalia mode (Super+C), see MODES below.
 hl.bind(mainMod .. " + Return",     hl.dsp.exec_cmd(launchPrefix .. TERMINAL))
 hl.bind("XF86Calculator",           hl.dsp.exec_cmd(launchPrefix .. CALCULATOR))
 hl.bind("CONTROL + SHIFT + Escape", hl.dsp.exec_cmd(launchPrefix .. TERMINAL .. " -e btop"))
@@ -276,11 +278,9 @@ hl.bind(mainMod .. " + code:49", hl.dsp.exec_cmd("kitten quick-access-terminal")
 ---- MODES (SUBMAPS) ----
 -------------------------
 
--- Modal keymaps, like awesome's modal keygrabbers. Enter with a Super combo,
--- then use bare keys; Escape/Space/Return leave. Each mode's hint text is shown as a
--- notification for as long as the mode is active (see the keybinds.submap hook).
--- A hint is either a string or a function returning one (evaluated on entry).
-local submap_hints = {}
+-- Modal keymaps, like awesome's modal keygrabbers. The mechanism (hint
+-- notifications, leave keys, one-shot entries) is in lib/modalmap.lua; this
+-- section only defines the modes.
 
 local function is_master()
     local ws = hl.get_active_workspace()
@@ -301,7 +301,7 @@ end
 
 -- Super+V: layout mode. Master: mfact/nmaster/orientation. Elsewhere (dwindle,
 -- scrolling): the arrows resize the focused window.
-submap_hints.layout = function()
+local function layout_hint()
     if is_master() then
         return table.concat({
             "-- LAYOUT (master) --",
@@ -322,99 +322,93 @@ submap_hints.layout = function()
 end
 
 local step = 40  -- px per resize keypress
-hl.bind(mainMod .. " + V", hl.dsp.submap("layout"))
-hl.define_submap("layout", function()
-    -- Each direction also on its Neo2 home-row key (i/e/l/a = left/right/up/
-    -- down), bound by keycode (QWERTZ s/f/e/d) so it works in every xkb layout.
-    local dirs = {
-        { keys = { "Left",  "code:39" }, fn = master_or_resize("mfact -0.05",  -step, 0) },
-        { keys = { "Right", "code:41" }, fn = master_or_resize("mfact +0.05",   step, 0) },
-        { keys = { "Up",    "code:26" }, fn = master_or_resize("addmaster",     0, -step) },
-        { keys = { "Down",  "code:40" }, fn = master_or_resize("removemaster",  0,  step) },
-    }
-    for _, d in ipairs(dirs) do
-        for _, key in ipairs(d.keys) do
-            hl.bind(key, d.fn, { repeating = true })
+modal.mode("layout", {
+    key   = mainMod .. " + V",
+    hint  = layout_hint,
+    leave = { "Escape", "Return", "Space" },
+    binds = function()
+        -- Each direction also on its Neo2 home-row key (i/e/l/a = left/right/up/
+        -- down), bound by keycode (QWERTZ s/f/e/d) so it works in every xkb layout.
+        local dirs = {
+            { keys = { "Left",  "code:39" }, fn = master_or_resize("mfact -0.05",  -step, 0) },
+            { keys = { "Right", "code:41" }, fn = master_or_resize("mfact +0.05",   step, 0) },
+            { keys = { "Up",    "code:26" }, fn = master_or_resize("addmaster",     0, -step) },
+            { keys = { "Down",  "code:40" }, fn = master_or_resize("removemaster",  0,  step) },
+        }
+        for _, d in ipairs(dirs) do
+            for _, key in ipairs(d.keys) do
+                hl.bind(key, d.fn, { repeating = true })
+            end
         end
-    end
-    hl.bind("J",      smart_rearrange)
-    hl.bind("O",      hl.dsp.layout("orientationcycle"))
-    hl.bind("Escape", hl.dsp.submap("reset"))
-    hl.bind("Return", hl.dsp.submap("reset"))
-    hl.bind("Space",  hl.dsp.submap("reset"))
-end)
+        hl.bind("J", smart_rearrange)
+        hl.bind("O", hl.dsp.layout("orientationcycle"))
+    end,
+})
 
--- One-shot modes: each key runs its command and leaves the mode right away.
+-- One-shot modes: each key runs its action and leaves the mode right away.
 -- Keys are bound by keysym (mnemonic letters follow the active xkb layout).
--- entries = { { key, label, cmd, shown_key? }, ... }; the hint text is generated
--- from them (shown_key overrides how the key is printed, e.g. "SHIFT + W" -> "⇧W").
-local function oneshot_mode(name, entry_key, title, entries)
-    local lines = { "-- " .. title .. " --" }
-    for _, e in ipairs(entries) do
-        local shown = e[4] or e[1]  -- pad by characters, not bytes (⇧ is 3 bytes)
-        lines[#lines + 1] = shown .. string.rep(" ", 7 - utf8.len(shown)) .. e[2]
-    end
-    lines[#lines + 1] = "Esc/␣  leave"
-    submap_hints[name] = table.concat(lines, "\n")
 
-    hl.bind(entry_key, hl.dsp.submap(name))
-    hl.define_submap(name, function()
-        for _, e in ipairs(entries) do
-            hl.bind(e[1], function()
-                hl.dispatch(hl.dsp.submap("reset"))
-                hl.dispatch(hl.dsp.exec_cmd(e[3]))
-            end)
-        end
-        hl.bind("Escape", hl.dsp.submap("reset"))
-        hl.bind("Space",  hl.dsp.submap("reset"))
-    end)
+-- Super+X: app mode
+modal.oneshot("apps", {
+    key   = mainMod .. " + X",
+    title = "APPS",
+    entries = {
+        { "Return",    "terminal",    launchPrefix .. TERMINAL },
+        { "E",         "files",       launchPrefix .. FILE_MANAGER },
+        { "F",         "Firefox",     launchPrefix .. BROWSER },
+        { "T",         "editor",      launchPrefix .. EDITOR },
+        { "C",         "calculator",  launchPrefix .. CALCULATOR },
+        { "K",         "keepassxc",   launchPrefix .. PASSWORDS },
+        { "D",         "discord",     launchPrefix .. CHAT },
+        { "M",         "thunderbird", launchPrefix .. MAIL },
+        { "S",         "signal",      launchPrefix .. SIGNAL },
+        { "SHIFT + T", "telegram",    launchPrefix .. TELEGRAM },
+        { "L",         "slack",       launchPrefix .. SLACK },
+        { "SHIFT + S", "steam",       launchPrefix .. STEAM },
+        { "B",         "btop",        launchPrefix .. TERMINAL .. " -e btop" },
+    },
+})
+
+-- Super+C: noctalia mode
+modal.oneshot("noctalia", {
+    key   = mainMod .. " + C",
+    title = "NOCTALIA",
+    entries = {
+        { "C",         "control center", noctCall .. "panel-toggle control-center" },
+        { "A",         "audio",          noctCall .. "panel-toggle control-center audio" },
+        { "D",         "displays",       noctCall .. "panel-toggle control-center monitor" },
+        { "W",         "wifi",           noctCall .. "panel-toggle control-center network" },
+        { "B",         "bluetooth",      noctCall .. "panel-toggle control-center bluetooth" },
+        { "N",         "notifications",  noctCall .. "panel-toggle control-center notifications" },
+        { "S",         "settings",       noctCall .. "settings-toggle" },
+        { "V",         "clipboard",      noctCall .. "panel-toggle clipboard" },
+        { "SHIFT + W", "wallpaper",      noctCall .. "panel-toggle wallpaper" },
+        { "E",         "emoji",          noctCall .. "panel-toggle launcher /emo" },
+        { "P",         "power profile",  modal.enter("power") },
+        { "X",         "session",        noctCall .. "panel-toggle session" },
+    },
+})
+
+-- Power profile mode, entered from noctalia mode (P). power-profiles-daemon
+-- drives the ACPI platform profile, so sysfs says which one is active without
+-- a D-Bus round-trip; map it back to this mode's key for the hint marker.
+local platform_profile_key = { ["low-power"] = "1", balanced = "2", performance = "3" }
+local function active_power_key()
+    local f = io.open("/sys/firmware/acpi/platform_profile")
+    if not f then return nil end
+    local p = f:read("l")
+    f:close()
+    return platform_profile_key[p]
 end
-
--- Super+C: app mode
-oneshot_mode("apps", mainMod .. " + C", "APPS", {
-    { "Return", "terminal",   launchPrefix .. TERMINAL },
-    { "E",      "files",      launchPrefix .. FILE_MANAGER },
-    { "W",      "browser",    launchPrefix .. BROWSER },
-    { "T",      "editor",     launchPrefix .. EDITOR },
-    { "C",      "calculator", launchPrefix .. CALCULATOR },
-    { "K",      "keepassxc",  launchPrefix .. PASSWORDS },
-    { "D",      "discord",    launchPrefix .. CHAT },
-    { "M",      "thunderbird", launchPrefix .. MAIL },
-    { "S",      "signal",     launchPrefix .. SIGNAL },
-    { "SHIFT + T", "telegram", launchPrefix .. TELEGRAM, "⇧T" },
-    { "L",      "slack",      launchPrefix .. SLACK },
-    { "SHIFT + S", "steam",   launchPrefix .. STEAM, "⇧S" },
-    { "B",      "btop",       launchPrefix .. TERMINAL .. " -e btop" },
+modal.oneshot("power", {
+    title  = "POWER PROFILE",
+    active = active_power_key,
+    entries = {
+        { "1", "power saver", noctCall .. "power-set power-saver" },
+        { "2", "balanced",    noctCall .. "power-set balanced" },
+        { "3", "performance", noctCall .. "power-set performance" },
+    },
 })
-
--- Super+X: noctalia mode
-oneshot_mode("noctalia", mainMod .. " + X", "NOCTALIA", {
-    { "X", "control center", noctCall .. "panel-toggle control-center" },
-    { "A", "audio",          noctCall .. "panel-toggle control-center audio" },
-    { "D", "displays",       noctCall .. "panel-toggle control-center monitor" },
-    { "W", "wifi",           noctCall .. "panel-toggle control-center network" },
-    { "B", "bluetooth",      noctCall .. "panel-toggle control-center bluetooth" },
-    { "N", "notifications",  noctCall .. "panel-toggle control-center notifications" },
-    { "S", "settings",       noctCall .. "settings-toggle" },
-    { "V", "clipboard",      noctCall .. "panel-toggle clipboard" },
-    { "SHIFT + W", "wallpaper", noctCall .. "panel-toggle wallpaper", "⇧W" },
-    { "E", "emoji",          noctCall .. "panel-toggle launcher /emo" },
-    { "P", "session/power",  noctCall .. "panel-toggle session" },
-})
-
--- Show the active mode's hints; drop them when the mode changes or ends.
-local submap_note
-hl.on("keybinds.submap", function()
-    if submap_note then
-        submap_note:dismiss()
-        submap_note = nil
-    end
-    local hint = submap_hints[hl.get_current_submap()]
-    if type(hint) == "function" then hint = hint() end
-    if hint then
-        submap_note = hl.notification.create({ text = hint, timeout = 600000 })
-    end
-end)
 
 -- Cycle keyboard layouts (neo -> de -> us). Bound by keycode, not keysym: the
 -- key right of Ü produces a different symbol in each layout, so a keysym bind
