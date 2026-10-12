@@ -430,8 +430,27 @@ modal.oneshot("power", {
     },
 })
 
--- Cycle keyboard layouts (neo -> de -> us). Bound by keycode, not keysym: the
--- key right of Ü produces a different symbol in each layout, so a keysym bind
--- would stop working as soon as it switched away from the layout it matched.
--- code:35 = xkb keycode (evdev KEY_RIGHTBRACE 27 + 8).
-hl.bind(mainMod .. " + code:35", hl.dsp.exec_cmd("hyprctl switchxkblayout all next"))
+-- Keyboard layout mode. Opened by keycode, not keysym: the key right of Ü
+-- produces a different symbol in each layout, so a keysym bind would stop
+-- working as soon as it switched away from the layout it matched.
+-- code:35 = xkb keycode (evdev KEY_RIGHTBRACE 27 + 8). Entries use digits,
+-- which sit in the same place in neo, de and us. Indices follow kb_layout in
+-- inputs.lua. The Lua API can't read the active layout, so remember the last
+-- pick here (empty after a config reload, which starts a fresh Lua state).
+local kb_active
+local function set_kb(i)
+    return function()
+        kb_active = tostring(i + 1)
+        hl.dispatch(hl.dsp.exec_cmd("hyprctl switchxkblayout all " .. i))
+    end
+end
+modal.oneshot("kblayout", {
+    key    = mainMod .. " + code:35",
+    title  = "KEYBOARD LAYOUT",
+    active = function() return kb_active end,
+    entries = {
+        { "1", "neo", set_kb(0) },
+        { "2", "de",  set_kb(1) },
+        { "3", "us",  set_kb(2) },
+    },
+})
