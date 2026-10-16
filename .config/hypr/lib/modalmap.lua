@@ -25,7 +25,7 @@ local M = {}
 
 local hints = {}  -- mode name -> hint string or function
 
-local mod_symbols = { SHIFT = "⇧", CTRL = "⌃", CONTROL = "⌃", ALT = "⌥" }
+local mod_symbols = { SHIFT = "⇧", CTRL = "⌃", CONTROL = "⌃", ALT = "⌥", SUPER = "❖" }
 
 local function shown_key(key)
     return (key:gsub("(%u+)%s*%+%s*", function(mod) return mod_symbols[mod] end))

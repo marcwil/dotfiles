@@ -28,4 +28,4 @@ prefs.styles = { "basic", "kit-colors", "nicecolors" }
 
 -- prefs.external_editor = "emacsclient -c %s"
 -- prefs.external_editor = "emacs %s -f TeX-mode"
-prefs.external_editor = "emacsclient -c -e '(progn (find-file \"%s\") (LaTeX-mode))'"
+prefs.external_editor = "emacsclient -c -a '' -e '(progn (find-file \"%s\") (LaTeX-mode))'"
