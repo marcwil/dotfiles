@@ -24,7 +24,7 @@ hl.config({
     -- on this Intel GPU (aquamarine "atomic drm request: Device or resource busy"),
     -- leaving the pointer invisible. Software cursors avoid that.
     cursor = {
-        no_hardware_cursors = 1,
+        no_hardware_cursors = 0,  -- TEST 2026-10-13: retrying HW cursors; set back to 1 if cursor vanishes after unlock
     },
 })
 
