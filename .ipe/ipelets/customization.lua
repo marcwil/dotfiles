@@ -18,6 +18,9 @@ shortcuts.ipelet_1_strut = "Alt+Shift+R"
 shortcuts.ipelet_1_hide = "Alt+Shift+H"
 shortcuts.ipelet_1_decorator = "Alt+Shift+D"
 
+shortcuts.close = nil -- Free Ctrl+W
+shortcuts.new_view = "Ctrl+W"
+
 -- custom settings
 prefs.developer = true
 prefs.auto_run_latex = false
