@@ -431,6 +431,31 @@ modal.oneshot("power", {
     },
 })
 
+-- XF86PickupPhone (laptop fn row): music mode. Sticky, so several skips are
+-- just 3 3 3; play/pause leaves too, like a oneshot entry (Shift+2 stays).
+-- Otherwise leaves on the default Esc/Space.
+modal.mode("media", {
+    key  = "XF86PickupPhone",
+    hint = table.concat({
+        "-- MUSIC --",
+        "1    previous",
+        "2    play/pause, leave",
+        "⇧2   play/pause, stay",
+        "3    next",
+        "Esc/␣ leave",
+    }, "\n"),
+    binds = function()
+        hl.bind("1", hl.dsp.exec_cmd(noctCall .. "media previous"))
+        hl.bind("2", function()
+            -- leave first, so a failing command can't strand us in the mode
+            hl.dispatch(hl.dsp.submap("reset"))
+            hl.dispatch(hl.dsp.exec_cmd(noctCall .. "media toggle"))
+        end)
+        hl.bind("SHIFT + 2", hl.dsp.exec_cmd(noctCall .. "media toggle"))
+        hl.bind("3", hl.dsp.exec_cmd(noctCall .. "media next"))
+    end,
+})
+
 -- Keyboard layout mode. Opened by keycode, not keysym: the key right of Ü
 -- produces a different symbol in each layout, so a keysym bind would stop
 -- working as soon as it switched away from the layout it matched.
