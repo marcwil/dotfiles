@@ -25,12 +25,12 @@ thickness = 35
     opacity = 1.0
     padding = 6.0
 
-    # Built-in laptop panel only: hide the bar unless the workspace is empty or the
-    # pointer touches the top edge. External monitors keep the normal always-on bar.
-    [bar.default.monitor.builtin]
-    match = "eDP-1"
-    smart_auto_hide = true
-    reserve_space = false
+#    # Built-in laptop panel only: hide the bar unless the workspace is empty or the
+#    # pointer touches the top edge. External monitors keep the normal always-on bar.
+#    [bar.default.monitor.builtin]
+#    match = "eDP-1"
+#    smart_auto_hide = true
+#    reserve_space = false
 
 [idle]
 pre_action_fade_seconds = 3.0
