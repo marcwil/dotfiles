@@ -120,6 +120,7 @@ hl.bind(mainMod .. " + code:86", function() zoomfunction(0.3) end, { repeating =
 -- (Super+X) and noctalia mode (Super+C), see MODES below.
 hl.bind(mainMod .. " + Return",     hl.dsp.exec_cmd(launchPrefix .. TERMINAL))
 hl.bind("XF86Calculator",           hl.dsp.exec_cmd(launchPrefix .. CALCULATOR))
+hl.bind("XF86NotificationCenter",   hl.dsp.exec_cmd(launchPrefix .. "sm -n 'Noto Sans CJK TC Bold'"))  -- screen-message
 hl.bind("CONTROL + SHIFT + Escape", hl.dsp.exec_cmd(launchPrefix .. TERMINAL .. " -e btop"))
 hl.bind(mainMod .. " + Space",      hl.dsp.exec_cmd(noctCall .. "panel-toggle launcher"))
 -- Lenovo BT keyboard's lock key: keyd turns its ⊞+L combo into XF86ScreenSaver
